@@ -79,23 +79,25 @@ special_X_keysyms = {
     '~' : "asciitilde"
     }
 
-def get_keysym(ch) :
+def get_keysym(ch):
     keysym = Xlib.XK.string_to_keysym(ch)
     if keysym == 0 :
         # Unfortunately, although this works to get the correct keysym
         # i.e. keysym for '#' is returned as "numbersign"
         # the subsequent display.keysym_to_keycode("numbersign") is 0.
-        keysym = Xlib.XK.string_to_keysym(special_X_keysyms[ch])
+        if ch in special_X_keysyms:
+            special = special_X_keysyms[ch]
+            keysym = Xlib.XK.string_to_keysym(special)
     return keysym
 
-def is_shifted(ch) :
-    if ch.isupper() :
+def is_shifted(ch):
+    if ch.isupper():
         return True
-    if "~!@#$%^&*()_+{}|:\"<>?".find(ch) >= 0 :
+    if ch in '~!@#$%^&*()_+{}|:\"<>?':
         return True
     return False
 
-def char_to_keycode(ch) :
+def char_to_keycode(ch):
     keysym = get_keysym(ch)
     keycode = display.keysym_to_keycode(keysym)
     if keycode == 0 :
@@ -108,12 +110,14 @@ def char_to_keycode(ch) :
 
     return keycode, shift_mask
 
-def send_string(window, str) :
+def send_string(window, str):
     for ch in str :
-        keynum = display.keysym_to_keycode(Xlib.XK.string_to_keysym(ch))
-        print "sending", ch, "=", keynum
         keycode, shift_mask = char_to_keycode(ch)
+        if keycode == 0:
+            keycode, shift_mask = char_to_keycode('_')
 
+        print 'sending [{0!r}] keycode={1} with shift_mask={2}'.format(
+            ch, keycode, shift_mask)
         for eventtype in (Xlib.protocol.event.KeyPress,
                           Xlib.protocol.event.KeyRelease):
             event = eventtype(root=display.screen().root,
