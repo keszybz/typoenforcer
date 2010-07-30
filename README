@@ -1,0 +1,50 @@
+==========================================================
+                        typoenforcer
+==========================================================
+a program to run live coding demos without actually typing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Requirements
+============
+
+- xwininfo from x11-utils
+- python :)
+- python-xlib for the Xlib module
+
+Usage
+=====
+
+Have a file with the code you want to 'type' ready.
+Open a terminal with python (or some other interpeter that can accept
+commands, doesn't have to run in a terminal emulator).
+Run typoenforcer.
+It'll ask you for two things:
+      - the source file
+      - the target window
+The first can be given on the command line and is otherwise selected
+through a normal file-open dialog. The latter is selected by running
+xwininfo (the cross-hair cursor...) to pick the window.
+
+In the window displaying the source file, press Return to 'type'
+one line. It is also possible to select more than one line with shift
+and cursor keys or by using the mouse. If more than one line is
+selected, they are 'typed' in turn. Afterwards, the next line after
+the previous selection is selected.
+
+Bugs
+====
+
+Characters outside of the ASCII realm are not supported. '_' is
+delivered to the target window as a placeholder instead. Patches
+welcome.
+
+Using shift-arrows to modify the selected lines doesn't fully work:
+nothing is selected at first, only the second and later tries
+succeed. A problem with Tkinter.Listbox?
+
+Ideas
+=====
+
+- support multiple targets (i.e. one python3, one python2.7).
+- support shift-return to input the whole block until empty line
+
