@@ -1,33 +1,43 @@
 #!/usr/bin/env python
+# -*- coding:utf-8; -*-
 
+# Trimmed down version of pykey, extended to pick target window first.
+#
 # pykey -- a Python version of crikey,
 # http://shallowsky.com/software/crikey
 # Simulate keypresses under X11.
 #
-# This software is copyright 2008 by Akkana Peck.
+# This software is copyright 2008 by Akkana Peck,
+# and copyright 2010 by Zbigniew Jędrzejewski-Szmek.
 # Please share and re-use this under the terms of the GPLv2
 # or, at your option, any later GPL version.
 
+import sys, time
+import re
+import subprocess
 import Xlib.display
 import Xlib.X
 import Xlib.XK
 import Xlib.protocol.event
 
-UseXTest = True
-
-try :
-    import Xlib.ext.xtest
-except ImportError:
-    UseXTest = False
-    print "no XTest extension; using XSendEvent"
-
-import sys, time
-
 display = Xlib.display.Display()
-window = display.get_input_focus()._data["focus"];
 
-if UseXTest and not display.query_extension("XTEST") :
-    UseXTest = False
+def get_window_id():
+    xwininfo = subprocess.Popen(['xwininfo'],
+                                stdout=subprocess.PIPE, stderr=sys.stderr)
+    output, errors = xwininfo.communicate()
+    match = re.search(r'Window id: (0x[0-9a-f]+)', output)
+    if match is None:
+        raise ValueError('cannot find window id in xwininfo output')
+    windowid = int(match.group(1), 16)
+    return windowid
+
+def get_window(windowid=None):
+    #window = display.get_input_focus()._data["focus"];
+    if windowid is None:
+        windowid = get_window_id()
+    window = display.create_resource_object('window', windowid)
+    return window
 
 special_X_keysyms = {
     ' ' : "space",
@@ -69,7 +79,6 @@ special_X_keysyms = {
     '~' : "asciitilde"
     }
 
-
 def get_keysym(ch) :
     keysym = Xlib.XK.string_to_keysym(ch)
     if keysym == 0 :
@@ -99,40 +108,28 @@ def char_to_keycode(ch) :
 
     return keycode, shift_mask
 
-def send_string(str) :
+def send_string(window, str) :
     for ch in str :
-        print "sending", ch, "=", display.keysym_to_keycode(Xlib.XK.string_to_keysym(ch))
+        keynum = display.keysym_to_keycode(Xlib.XK.string_to_keysym(ch))
+        print "sending", ch, "=", keynum
         keycode, shift_mask = char_to_keycode(ch)
-        if (UseXTest) :
-            print "Trying fake_input of", ch, ", shift_mask is", shift_mask
-            if shift_mask != 0 :
-                Xlib.ext.xtest.fake_input(display, Xlib.X.KeyPress, 50)
-            Xlib.ext.xtest.fake_input(display, Xlib.X.KeyPress, keycode)
-            Xlib.ext.xtest.fake_input(display, Xlib.X.KeyRelease, keycode)
-            if shift_mask != 0 :
-                Xlib.ext.xtest.fake_input(display, Xlib.X.KeyRelease, 50)
-        else :
-            event = Xlib.protocol.event.KeyPress(
-                time = int(time.time()),
-                root = display.screen().root,
-                window = window,
-                same_screen = 0, child = Xlib.X.NONE,
-                root_x = 0, root_y = 0, event_x = 0, event_y = 0,
-                state = shift_mask,
-                detail = keycode
-                )
-            window.send_event(event, propagate = True)
-            event = Xlib.protocol.event.KeyRelease(
-                time = int(time.time()),
-                root = display.screen().root,
-                window = window,
-                same_screen = 0, child = Xlib.X.NONE,
-                root_x = 0, root_y = 0, event_x = 0, event_y = 0,
-                state = shift_mask,
-                detail = keycode
-                )
-            window.send_event(event, propagate = True)
 
-for argp in range(1, len(sys.argv)) :
-    send_string(sys.argv[argp])
-    display.sync()
+        for eventtype in (Xlib.protocol.event.KeyPress,
+                          Xlib.protocol.event.KeyRelease):
+            event = eventtype(root=display.screen().root,
+                              window=window,
+                              same_screen=0,
+                              child=Xlib.X.NONE,
+                              root_x=0, root_y=0,
+                              event_x=0, event_y=0,
+                              state=shift_mask,
+                              detail=keycode,
+                              time=int(time.time()))
+            window.send_event(event, propagate=True)
+
+if __name__ == '__main__':
+    for arg in sys.argv[1:]:
+        window = get_window()
+        time.sleep(3)
+        send_string(window, arg)
+        display.sync()
