@@ -32,21 +32,21 @@ class Application(tk.Frame):
         self.columnconfigure(0, weight=1)
 
         self.quitButton = tk.Button(self, text='Quit', command=self.quit)
-        self.quitButton.grid()
+        self.quitButton.grid(column=0, row=0)
 
         self.fileButton = tk.Button(self, text='Load file',
                                     command=self.fileHandler)
-        self.fileButton.grid()
+        self.fileButton.grid(column=1, row=0)
 
         self.targetButton = tk.Button(self, text='Set target',
                                       command=self.targetHandler)
-        self.targetButton.grid()
+        self.targetButton.grid(column=2, row=0)
 
         self.theText = tk.Listbox(self, height=50, width=72,
                                   selectmode=tk.EXTENDED)
         self.theText.bind('<KeyPress-Return>', self.keyHandler)
         self.theText.focus_set()
-        self.theText.grid(sticky='nesw')
+        self.theText.grid(sticky='nesw', columnspan=3)
 
     def debugOutputHandler(self, *lines):
         for line in lines:
