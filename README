@@ -48,3 +48,24 @@ Ideas
 - support multiple targets (i.e. one python3, one python2.7).
 - support shift-return to input the whole block until empty line
 
+What works
+==========
+
++ urxvt
++ xev
++ gnome-terminal
++ gedit
++ oowriter
++ abiword
++ galeon
++ gvim (in insert mode)
++ emacs
+
+What doesn't (without focus)
+============================
+
+- konsole
+- xterm
+- mayavi
+- firefox?
+- idle
