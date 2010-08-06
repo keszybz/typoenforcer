@@ -40,6 +40,8 @@ class Application(tk.Frame):
         self.newButton(0, 2, 'Set target', self.targetHandler)
         self.newButton(0, 3, 'Bigger font', self.biggerfontHandler)
         self.newButton(0, 4, 'Smaller font', self.smallerfontHandler)
+        self.master.bind('=', self.biggerfontHandler)
+        self.master.bind('-', self.smallerfontHandler)
 
         self.textFont = tkFont.Font(size=15)
 
@@ -99,10 +101,10 @@ class Application(tk.Frame):
         font_size = font_size + 1 if increase else font_size - 1
         self.textFont.config(size=font_size)
 
-    def biggerfontHandler(self):
+    def biggerfontHandler(self, event=None):
         self.changeFont(True)
 
-    def smallerfontHandler(self):
+    def smallerfontHandler(self, event=None):
         self.changeFont(False)
 
 app = Application()
