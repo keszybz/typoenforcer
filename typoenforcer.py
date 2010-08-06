@@ -2,7 +2,7 @@
 # -*- coding:utf-8; -*-
 
 import sys
-import Tkinter as tk, tkFileDialog
+import Tkinter as tk, tkFileDialog, tkFont
 import pykey
 
 LONG_TITLE = 'TypoEnforcer'
@@ -42,11 +42,21 @@ class Application(tk.Frame):
                                       command=self.targetHandler)
         self.targetButton.grid(column=2, row=0)
 
+        self.ppfontButton = tk.Button(self, text='Bigger font',
+                command=self.biggerfontHandler)
+        self.ppfontButton.grid(column=3, row=0)
+
+        self.ppfontButton = tk.Button(self, text='Smaller font',
+                command=self.smallerfontHandler)
+        self.ppfontButton.grid(column=4, row=0)
+
+        self.textFont = tkFont.Font(size=15)
+
         self.theText = tk.Listbox(self, height=50, width=72,
-                                  selectmode=tk.EXTENDED)
+                                  selectmode=tk.EXTENDED, font=self.textFont)
         self.theText.bind('<KeyPress-Return>', self.keyHandler)
         self.theText.focus_set()
-        self.theText.grid(sticky='nesw', columnspan=3)
+        self.theText.grid(sticky='nesw', columnspan=5)
 
     def debugOutputHandler(self, *lines):
         for line in lines:
@@ -92,6 +102,17 @@ class Application(tk.Frame):
     def targetHandler(self, windowid=None):
         self.target = pykey.get_window(windowid)
         print 'target set to', self.target
+
+    def changeFont(self, increase):
+        font_size = self.textFont.cget("size")
+        font_size = font_size + 1 if increase else font_size - 1
+        self.textFont.config(size=font_size)
+
+    def biggerfontHandler(self):
+        self.changeFont(True)
+
+    def smallerfontHandler(self):
+        self.changeFont(False)
 
 app = Application()
 
