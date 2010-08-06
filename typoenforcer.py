@@ -2,7 +2,7 @@
 # -*- coding:utf-8; -*-
 
 import sys
-import Tkinter as tk, tkFileDialog
+import Tkinter as tk, tkFileDialog, tkFont
 import pykey
 
 LONG_TITLE = 'TypoEnforcer'
@@ -24,6 +24,10 @@ class Application(tk.Frame):
             self.theText.insert(tk.END, line)
         self.gotoLine(0)
 
+    def newButton(self, row, column, text, command):
+        button = tk.Button(self, text=text, command=command)
+        button.grid(row=row, column=column)
+
     def createWidgets(self):
         top = self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
@@ -31,22 +35,21 @@ class Application(tk.Frame):
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
 
-        self.quitButton = tk.Button(self, text='Quit', command=self.quit)
-        self.quitButton.grid(column=0, row=0)
+        self.newButton(0, 0, 'Quit', self.quit)
+        self.newButton(0, 1, 'Load file', self.fileHandler)
+        self.newButton(0, 2, 'Set target', self.targetHandler)
+        self.newButton(0, 3, 'Bigger font', self.biggerfontHandler)
+        self.newButton(0, 4, 'Smaller font', self.smallerfontHandler)
+        self.master.bind('=', self.biggerfontHandler)
+        self.master.bind('-', self.smallerfontHandler)
 
-        self.fileButton = tk.Button(self, text='Load file',
-                                    command=self.fileHandler)
-        self.fileButton.grid(column=1, row=0)
-
-        self.targetButton = tk.Button(self, text='Set target',
-                                      command=self.targetHandler)
-        self.targetButton.grid(column=2, row=0)
+        self.textFont = tkFont.Font(size=15)
 
         self.theText = tk.Listbox(self, height=50, width=72,
-                                  selectmode=tk.EXTENDED)
+                                  selectmode=tk.EXTENDED, font=self.textFont)
         self.theText.bind('<KeyPress-Return>', self.keyHandler)
         self.theText.focus_set()
-        self.theText.grid(sticky='nesw', columnspan=3)
+        self.theText.grid(sticky='nesw', columnspan=5)
 
     def debugOutputHandler(self, *lines):
         for line in lines:
@@ -92,6 +95,17 @@ class Application(tk.Frame):
     def targetHandler(self, windowid=None):
         self.target = pykey.get_window(windowid)
         print 'target set to', self.target
+
+    def changeFont(self, increase):
+        font_size = self.textFont.cget("size")
+        font_size = font_size + 1 if increase else font_size - 1
+        self.textFont.config(size=font_size)
+
+    def biggerfontHandler(self, event=None):
+        self.changeFont(True)
+
+    def smallerfontHandler(self, event=None):
+        self.changeFont(False)
 
 app = Application()
 
