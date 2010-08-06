@@ -24,6 +24,10 @@ class Application(tk.Frame):
             self.theText.insert(tk.END, line)
         self.gotoLine(0)
 
+    def newButton(self, row, column, text, command):
+        button = tk.Button(self, text=text, command=command)
+        button.grid(row=row, column=column)
+
     def createWidgets(self):
         top = self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
@@ -31,24 +35,11 @@ class Application(tk.Frame):
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
 
-        self.quitButton = tk.Button(self, text='Quit', command=self.quit)
-        self.quitButton.grid(column=0, row=0)
-
-        self.fileButton = tk.Button(self, text='Load file',
-                                    command=self.fileHandler)
-        self.fileButton.grid(column=1, row=0)
-
-        self.targetButton = tk.Button(self, text='Set target',
-                                      command=self.targetHandler)
-        self.targetButton.grid(column=2, row=0)
-
-        self.ppfontButton = tk.Button(self, text='Bigger font',
-                command=self.biggerfontHandler)
-        self.ppfontButton.grid(column=3, row=0)
-
-        self.ppfontButton = tk.Button(self, text='Smaller font',
-                command=self.smallerfontHandler)
-        self.ppfontButton.grid(column=4, row=0)
+        self.newButton(0, 0, 'Quit', self.quit)
+        self.newButton(0, 1, 'Load file', self.fileHandler)
+        self.newButton(0, 2, 'Set target', self.targetHandler)
+        self.newButton(0, 3, 'Bigger font', self.biggerfontHandler)
+        self.newButton(0, 4, 'Smaller font', self.smallerfontHandler)
 
         self.textFont = tkFont.Font(size=15)
 
