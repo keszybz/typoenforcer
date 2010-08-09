@@ -81,7 +81,7 @@ special_X_keysyms = {
 
 def get_keysym(ch):
     keysym = Xlib.XK.string_to_keysym(ch)
-    if keysym == 0 :
+    if keysym == 0:
         # Unfortunately, although this works to get the correct keysym
         # i.e. keysym for '#' is returned as "numbersign"
         # the subsequent display.keysym_to_keycode("numbersign") is 0.
@@ -100,18 +100,18 @@ def is_shifted(ch):
 def char_to_keycode(ch):
     keysym = get_keysym(ch)
     keycode = display.keysym_to_keycode(keysym)
-    if keycode == 0 :
+    if keycode == 0:
         print "Sorry, can't map", ch
 
-    if (is_shifted(ch)) :
+    if is_shifted(ch):
         shift_mask = Xlib.X.ShiftMask
-    else :
+    else:
         shift_mask = 0
 
     return keycode, shift_mask
 
 def send_string(window, str):
-    for ch in str :
+    for ch in str:
         keycode, shift_mask = char_to_keycode(ch)
         if keycode == 0:
             keycode, shift_mask = char_to_keycode('_')
