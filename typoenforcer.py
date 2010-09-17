@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8; -*-
 
-import sys
+import sys, os
 import Tkinter as tk, tkFileDialog, tkFont
 import pykey
 
@@ -17,6 +17,7 @@ class Application(tk.Frame):
                                self.windowOutputHandler]
         self.master.title(LONG_TITLE)
         self.target = None
+        self.filename = None
 
     def set_text(self, *lines):
         self.theText.delete(0, tk.END)
@@ -87,10 +88,26 @@ class Application(tk.Frame):
 
     def fileHandler(self, filename=None):
         if filename is None:
-            filename = tkFileDialog.askopenfilename()
-        input = open(filename).read()
+            options = {}
+            if self.filename:
+                options['initialdir'] = os.path.dirname(self.filename)
+            filename = tkFileDialog.askopenfilename(**options)
+            if not filename:
+                print 'file selection cancelled'
+                return
+
+        self.filename = filename
+
+        try:
+            input = open(filename).read()
+        except IOError as e:
+            print 'file input failed', e
+            self.bell()
+            return
+
         self.master.title(SHORT_TITLE.format(filename))
         self.set_text(*input.split('\n'))
+        print 'loaded file', filename
 
     def targetHandler(self, windowid=None):
         self.target = pykey.get_window(windowid)
